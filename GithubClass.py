@@ -21,15 +21,20 @@ class GithubClass:
         return self.client.get_user().get_repos()
 
     def get_repo(self, repo_name):
-        repo = list(x for x in self.get_repos() if x.name == repo_name)
-        return repo[0]
+        repo_list = list(self.get_repo_gen(repo_name))
+        if len(repo_list) > 0:
+            return repo_list[0]
+        else:
+            return "error"
+
+    def get_repo_gen(self, repo_name):
+        for repo in self.get_repos():
+            if repo.name == repo_name:
+                yield repo
 
     def delete_repo(self, repo_name):
-        repo = list(x for x in self.get_repos() if x.name == repo_name)
-        if len(repo) > 0:
-            repo[0].delete()
-        else:
-            pass
+        repo = self.get_repo(repo_name)
+        repo.delete()
 
     def get_names_of_branches(self, repo_name):
         if repo_name in self.get_names_of_repos():
@@ -38,9 +43,22 @@ class GithubClass:
         else:
             pass
 
-    def create_branch(self, repo_name, branch_name):
-        repo = self.get_repo(repo_name)
-        print(repo.name)
+    def create_branch(self, repo, branch_name):
         sha = repo.get_git_ref('heads/master').object.sha
         branch = repo.create_git_ref('refs/heads/{}'.format(branch_name), sha)
+        self.protect_branch(repo, branch_name)
         return branch
+
+    def get_branch(self, repo, branch_name):
+        for branch in repo.get_branches():
+            if branch.name == branch_name:
+                return branch
+
+    def get_protected_branch(self, repo, branch_name):
+        return repo.get_protected_branch(branch_name)
+
+    def protect_branch(self, repo, branch_name):
+        repo.protect_branch(branch_name, True, "everyone", ["test"])
+
+    def get_dir_contents_branch(self, repo, branch):
+        pass
