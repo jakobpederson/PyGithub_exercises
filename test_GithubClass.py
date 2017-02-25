@@ -22,6 +22,9 @@ class TestGithubClassMethods(unittest.TestCase):
         for test_repo_name in cls.test_repos:
             if test_repo_name not in cls.g.get_names_of_repos():
                 cls.g.create_repo(test_repo_name)
+        cls.repo = cls.g.get_repo("repo1")
+        if "branch1" not in cls.g.get_names_of_branches(cls.repo.name):
+            cls.g.create_branch(cls.repo, "branch1")
 
     @classmethod
     def tearDownClass(cls):
@@ -41,19 +44,29 @@ class TestGithubClassMethods(unittest.TestCase):
     def test_delete_repo(self):
         if "repo4" not in self.g.get_names_of_repos():
             self.g.create_repo("repo4")
-            time.sleep(30)
-        self.g.delete_repo("self4")
+            time.sleep(10)
+        self.g.delete_repo("repo4")
         self.assertTrue("self4" not in self.g.get_names_of_repos())
 
     def test_get_names_of_repos(self):
+        if "repo4" in self.g.get_names_of_repos():
+            self.g.delete_repo("repo4")
+            time.sleep(5)
         self.assertCountEqual(
                 ["repo1", "repo2", "repo3"],
-                list(x for x in self.g.get_names_of_repos() if x in self.test_repos)
-                            )
+                list(x for x in self.g.get_names_of_repos() if x in self.test_repos))
 
     def test_get_names_of_branches(self):
-        self.assertTrue("legacy" in self.g.get_names_of_branches("PyGithub1"))
+        self.assertTrue("branch1" in self.g.get_names_of_branches("repo1"))
 
     def test_create_branch(self):
-        self.g.create_branch("repo1", "legacy")
-        self.assertTrue("legacy" in self.g.get_names_of_branches("repo1"))
+        self.g.create_branch(self.repo, "branch2")
+        self.assertTrue("branch2" in self.g.get_names_of_branches("repo1"))
+
+    def test_protect_branch(self):
+        branch = self.g.get_protected_branch(self.repo, "branch1")
+        self.assertTrue(branch.protected)
+
+    def test_get_dir_contents_branch(self):
+        branch = self.g.get_branch(self.repo, "branch1")
+        self.fail(self.g.get_dir_contents_branch(self.repo, branch))
