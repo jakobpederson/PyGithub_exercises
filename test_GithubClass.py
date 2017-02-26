@@ -26,11 +26,6 @@ class TestGithubClassMethods(unittest.TestCase):
         if "branch1" not in cls.g.get_names_of_branches(cls.repo.name):
             cls.g.create_branch(cls.repo, "branch1")
 
-        # newFile = '/requirements/setup.txt'
-        # content = 'a==1234\nb>2234,<=2235\nc>3234'
-        # repo.create_file(path=newFile, message='Test file for Test Repo', content=content, branch='legacy')
-        # repo.create_file(path=newFile, message='Test Requirement', content=content, branch='master')
-
     @classmethod
     def tearDownClass(cls):
         time.sleep(10)
@@ -75,6 +70,9 @@ class TestGithubClassMethods(unittest.TestCase):
         new_message = "text for test"
         branch_name = "branch1"
         new_content = 'a==1234\nb>2234,<=2235\nc>3234'
+        expected = ['a==1234', 'b>2234,<=2235', 'c>3234']
         self.g.create_file(
             self.repo, path=new_file, message=new_message, content=new_content, branch=branch_name)
-
+        files = self.g.get_branch_dir_contents(self.repo, "requirements", "branch1")
+        result = self.g.convert_github_files(files)
+        self.assertCountEqual(expected, result)
