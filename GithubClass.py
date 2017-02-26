@@ -61,3 +61,11 @@ class GithubClass:
 
     def create_file(self, repo, path, message, content, branch):
         return repo.create_file(path=path, message=message, content=content, branch=branch)
+
+    def get_branch_dir_contents(self, repo, path, branch_name):
+        return repo.get_dir_contents(path, branch_name)
+
+    def convert_github_files(self, files):
+        for github_file in files:
+            data_in_files = github_file.decoded_content.decode("utf-8").split('\n')
+        return data_in_files
