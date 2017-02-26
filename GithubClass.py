@@ -46,7 +46,6 @@ class GithubClass:
     def create_branch(self, repo, branch_name):
         sha = repo.get_git_ref('heads/master').object.sha
         branch = repo.create_git_ref('refs/heads/{}'.format(branch_name), sha)
-        self.protect_branch(repo, branch_name)
         return branch
 
     def get_branch(self, repo, branch_name):
@@ -60,5 +59,5 @@ class GithubClass:
     def protect_branch(self, repo, branch_name):
         repo.protect_branch(branch_name, True, "everyone", ["test"])
 
-    def get_dir_contents_branch(self, repo, branch):
-        pass
+    def create_file(self, repo, path, message, content, branch):
+        return repo.create_file(path=path, message=message, content=content, branch=branch)
