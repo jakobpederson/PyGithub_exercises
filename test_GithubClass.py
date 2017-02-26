@@ -3,7 +3,6 @@
 import unittest
 import nose
 import github
-from github import Github
 import github_class
 import logging
 import logging.config
@@ -25,6 +24,12 @@ class TestGithubClassMethods(unittest.TestCase):
         cls.repo = cls.g.get_repo("repo1")
         if "branch1" not in cls.g.get_names_of_branches(cls.repo.name):
             cls.g.create_branch(cls.repo, "branch1")
+        new_file = "/requirements/text.txt"
+        new_message = "text for test"
+        cls.branch_name = "branch1"
+        new_content = 'a==1234\nb>2234,<=2235\nc>3234'
+        cls.g.create_file(
+            cls.repo, path=new_file, message=new_message, content=new_content, branch=cls.branch_name)
 
     @classmethod
     def tearDownClass(cls):
@@ -66,13 +71,7 @@ class TestGithubClassMethods(unittest.TestCase):
         self.assertTrue(branch.protected)
 
     def test_create_file(self):
-        new_file = "/requirements/text.txt"
-        new_message = "text for test"
-        branch_name = "branch1"
-        new_content = 'a==1234\nb>2234,<=2235\nc>3234'
         expected = ['a==1234', 'b>2234,<=2235', 'c>3234']
-        self.g.create_file(
-            self.repo, path=new_file, message=new_message, content=new_content, branch=branch_name)
-        files = self.g.get_branch_dir_contents(self.repo, "requirements", "branch1")
+        files = self.g.get_branch_dir_contents(self.repo, "requirements", self.branch_name)
         result = self.g.convert_github_files(files)
         self.assertCountEqual(expected, result)
