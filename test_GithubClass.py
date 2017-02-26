@@ -26,6 +26,11 @@ class TestGithubClassMethods(unittest.TestCase):
         if "branch1" not in cls.g.get_names_of_branches(cls.repo.name):
             cls.g.create_branch(cls.repo, "branch1")
 
+        # newFile = '/requirements/setup.txt'
+        # content = 'a==1234\nb>2234,<=2235\nc>3234'
+        # repo.create_file(path=newFile, message='Test file for Test Repo', content=content, branch='legacy')
+        # repo.create_file(path=newFile, message='Test Requirement', content=content, branch='master')
+
     @classmethod
     def tearDownClass(cls):
         time.sleep(10)
@@ -49,9 +54,6 @@ class TestGithubClassMethods(unittest.TestCase):
         self.assertTrue("self4" not in self.g.get_names_of_repos())
 
     def test_get_names_of_repos(self):
-        if "repo4" in self.g.get_names_of_repos():
-            self.g.delete_repo("repo4")
-            time.sleep(5)
         self.assertCountEqual(
                 ["repo1", "repo2", "repo3"],
                 list(x for x in self.g.get_names_of_repos() if x in self.test_repos))
@@ -64,9 +66,15 @@ class TestGithubClassMethods(unittest.TestCase):
         self.assertTrue("branch2" in self.g.get_names_of_branches("repo1"))
 
     def test_protect_branch(self):
+        self.g.protect_branch(self.repo, "branch1")
         branch = self.g.get_protected_branch(self.repo, "branch1")
         self.assertTrue(branch.protected)
 
-    def test_get_dir_contents_branch(self):
-        branch = self.g.get_branch(self.repo, "branch1")
-        self.fail(self.g.get_dir_contents_branch(self.repo, branch))
+    def test_create_file(self):
+        new_file = "/requirements/text.txt"
+        new_message = "text for test"
+        branch_name = "branch1"
+        new_content = 'a==1234\nb>2234,<=2235\nc>3234'
+        self.g.create_file(
+            self.repo, path=new_file, message=new_message, content=new_content, branch=branch_name)
+
